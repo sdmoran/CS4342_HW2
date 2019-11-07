@@ -86,8 +86,8 @@ disp("P(y='healthy'|x='0'): " + length(d_healthy_no)/100);
 
 % Probability calculations for continuous case
 disp("P(y='disease'|x>0): " + length(c_disease_pos)/100);
-disp("P(y='healthy'|x>0): " + length(c_healthy_pos)/100);
-disp("P(y='disease'|x<0): " + length(c_disease_neg)/100);
+disp("P(y='healthy'|x>0): " + length(c_disease_neg)/100);
+disp("P(y='disease'|x<0): " + length(c_healthy_pos)/100);
 disp("P(y='healthy'|x<0): " + length(c_healthy_neg)/100);
 
 % General probability of health/disease
@@ -109,7 +109,7 @@ end
 disp("Naive Bayes classified healthy: " + healthy_count);
 disp("Naive Bayes classified diseased: " + diseased_count);
 
-Print_Probabilities(0);
+
 % Discrete is the discrete marker, cont is continuous
 function prob = Naive_Bayes(disease, disc, cont)
     load('assignment_2_problem_4.mat');
@@ -244,7 +244,7 @@ function disease = Prob_Disease_Continuous(x)
     end
 end
 
-function probs = Print_Probabilities(j)
+function probs = Print_Probabilities()
     for disease = 0 : 1
         for disc = 0 : 1
             for cont = -0.5:1:0.5 
@@ -254,13 +254,13 @@ function probs = Print_Probabilities(j)
                     pd = "healthy";
                 end
                 if(cont < 0)
-                    cd = "negative";
+                    cd = "negative"
                 else
-                    cd = "positive";
+                    cd = "positive"
                 end
-                disp("P(" + pd + "|X1 = " + disc + ", X2 = " + cd + "): " + Naive_Bayes(disease, disc, cont));
+                disp("P(" + pd + "|X1 = " + 
             end
         end
     end
-    probs = 0;
+    disp();
 end
