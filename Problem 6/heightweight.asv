@@ -46,12 +46,10 @@ for tied=[false true]
         %if c == 1 I have genuinely 0 idea how the fuck this works
         [cc,hh]=contour(x,y,g{1} - g{2},[0 0], '-k');
         %plot(cc(1, :), cc(2, :), 'r.');
-        jxs = 50:0.01:80;
-        ys = -5.5699 * jxs + 543.2542;
-        curveys = -0.0820 * jxs .^2 + 5.5467 * jxs + 134.7568;
+        jxs = 0:0.001:80;
+        ys = -2.3762 * jxs + 303.2543;
         plot(jxs, ys);
-        plot(jxs, curveys);
-        j = polyfit(cc(1, :), cc(2, :), 2);
+        j = polyfit(cc(1, :), cc(2, :), 1);
         disp(j);
 %         plot(hh(:, 1), hh(:, 2));
         set(hh,'linewidth',3);% Changes the width of the line
