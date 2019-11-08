@@ -94,7 +94,6 @@ disp("P(y='healthy'|x<0): " + length(c_healthy_neg)/100);
 disp("P(y='disease'): " + length(has_disease)/ 100);
 disp("P(y='healthy'): " + length(healthy)/ 100);
 
-
 % Classify people using naive bayes classifier
 healthy_count = 0;
 diseased_count = 0;
@@ -208,6 +207,13 @@ function disease = Prob_Disease_Continuous(x)
     load('assignment_2_problem_4.mat');
     has_disease = find(xy(:, 3) == 1);
     healthy = find(xy(:, 3) == 0);
+    
+    disp(xy(has_disease, 2));
+    disease_normal = fitdist(xy(has_disease, 2), 'Normal');
+    healthy_normal = fitdist(xy(healthy, 2), 'Normal');
+    disp(healthy_normal);
+    disp(disease_normal);
+    
     % Probability that disease given indicator
     % If the indicator is one... simulate probability that they have the
     % disease and their indicator is one * 
