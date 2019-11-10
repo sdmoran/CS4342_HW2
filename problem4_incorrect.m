@@ -1,3 +1,4 @@
+load('assignment_2_problem_4.mat');
 has_disease = find(xy(:, 3) == 1);
 healthy = find(xy(:, 3) == 0);
 
@@ -110,47 +111,58 @@ disp("Naive Bayes classified diseased: " + diseased_count);
 
 Print_Probabilities(0);
 % Discrete is the discrete marker, cont is continuous
-
-%!!! NORMAL DIST NEEDS TO HAVE CASES FOR PEOPLE HAVING/NOT HAVING DISEASE
-function prob = Naive_Bayes(prob, disc, cont)
+function prob = Naive_Bayes(disease, disc, cont)
     load('assignment_2_problem_4.mat');
     has_disease = find(xy(:, 3) == 1);
     healthy = find(xy(:, 3) == 0);
     
-    disease_and_indicator = find(xy(has_disease, 1) == 1);
-    %disp("Disease and indicator: " + length(disease_and_indicator));
+    d_disease_yes = find(xy(has_disease, 1) == 1);
+    d_disease_no = find(xy(has_disease, 1) == 0);
+    d_healthy_yes = find(xy(healthy, 1) == 1);
+    d_healthy_no = find(xy(healthy, 1) == 0);
 
-    disease_no_indicator = find(xy(has_disease, 1) == 0);
-    %disp("Disease no indicator: " + length(disease_no_indicator));
-
-    healthy_indicator = find(xy(healthy, 1) == 1);
-    %disp("No disease, indicator: " + length(healthy_indicator));
-
-    healthy_no_indicator = find(xy(healthy, 1) == 0);
-    
-    % Probability of having the disease
-    x1_dist = fitdist(xy(:, 3), 'Binomial');
-    disease_normal = fitdist(xy(has_disease, 2), 'Normal');
-    healthy_normal = fitdist(xy(healthy, 2), 'Normal');
+    % Positive continuous value -> disease
+    c_disease_pos = find(xy(has_disease, 2) > 0);
+    c_disease_neg = find(xy(has_disease, 2) <= 0);
+    c_healthy_pos = find(xy(healthy, 2) > 0);
+    c_healthy_neg = find(xy(healthy, 2) <= 0);
    
-    if(disc == 1)
-        prob_disease = length(disease_and_indicator) / 100 * pdf(x1_dist, 1) * pdf(disease_normal, cont);
-        prob_healthy = length(healthy_indicator) / 100 * pdf(x1_dist, 0) * pdf(healthy_normal, cont);
-        if(prob_disease > prob_healthy)
-            prob = 1;
+    disc_prob = 1;
+    cont_prob = 1;
+    class_prob = 1;
+    % If patient has disease:
+    if(disease == 1)
+        class_prob = length(xy(has_disease));
+        % If they have the marker, discrete probability is the the
+        % chance that they have the marker given they have the disease
+        if(disc == 1)
+            disc_prob = d_disease_yes;
         else
-            prob = 0;
+            disc_prob = d_disease_no;
         end
-    else %(x == 0)
-        prob_disease = length(disease_no_indicator) / 100 * pdf(x1_dist, 1) * pdf(disease_normal, cont);
-        prob_healthy = length(healthy_no_indicator) / 100 * pdf(x1_dist, 0) * pdf(healthy_normal, cont);
-        if(prob_disease > prob_healthy)
-            prob = 1;
+        % Check if they have continuous marker
+        if(cont > 0)
+            cont_prob = c_disease_pos;
         else
-            prob = 0;
+            cont_prob = c_disease_neg;
+        end
+    % If they DON'T have the disease:
+    else
+        % Check if they have the discrete marker
+        class_prob = length(xy(healthy));
+        if(disc == 1)
+            disc_prob = d_healthy_yes;
+        else
+            disc_prob = d_healthy_no;
+        end
+        % Check if they have the continuous marker
+        if(cont > 0)
+            cont_prob = c_healthy_pos;
+        else
+            cont_prob = c_healthy_neg;
         end
     end
-    
+    prob = length(disc_prob)/100 * length(cont_prob)/100 * class_prob/100;
 end
 
 function disease = Prob_Disease_Discrete(x)
@@ -173,24 +185,17 @@ function disease = Prob_Disease_Discrete(x)
     healthy_no_indicator = find(xy(healthy, 1) == 0);
     %disp("No disease, no indicator: " + length(healthy_no_indicator));
     
-    % Probability of having the disease
-    dist = fitdist(xy(:, 3), 'Binomial');
-    %disp("Probability of 1: " +  pdf(dist, 1));
-    %disp("Probability of 0: " +  pdf(dist, 0));
-    
-    %disp(dist);
-    
     if(x == 1)
-        prob_disease = length(disease_and_indicator) / 100 * pdf(dist, 1) / 100;
-        prob_healthy = length(healthy_indicator) / 100 * pdf(dist, 0) / 100;
+        prob_disease = length(disease_and_indicator) / 100 * length(has_disease) / 100;
+        prob_healthy = length(healthy_indicator) / 100 * length(healthy) / 100;
         if(prob_disease > prob_healthy)
             disease = 1;
         else
             disease = 0;
         end
     else %(x == 0)
-        prob_disease = length(disease_no_indicator) / 100 * pdf(dist, 1) / 100;
-        prob_healthy = length(healthy_no_indicator) / 100 * pdf(dist, 0) / 100;
+        prob_disease = length(disease_no_indicator) / 100 * length(has_disease) / 100;
+        prob_healthy = length(healthy_no_indicator) / 100 * length(healthy) / 100;
         if(prob_disease > prob_healthy)
             disease = 1;
         else
@@ -204,42 +209,19 @@ function disease = Prob_Disease_Continuous(x)
     has_disease = find(xy(:, 3) == 1);
     healthy = find(xy(:, 3) == 0);
     
-    disease_normal = fitdist(xy(has_disease, 2), 'Normal');
-    healthy_normal = fitdist(xy(healthy, 2), 'Normal');
+    % Probability that they are HEALTHY given this value of indicator
+    healthy_dist = fitdist(xy(healthy, 2), 'Normal');
     
-    % Probability that disease given indicator
-    % If the indicator is one... simulate probability that they have the
-    % disease and their indicator is one * 
-    % Looking for number who HAVE disease AND have indicator 
-    disease_and_indicator = find(xy(has_disease, 1) == 1);
-    %disp("Disease and indicator: " + length(disease_and_indicator));
-
-    disease_no_indicator = find(xy(has_disease, 1) == 0);
-    %disp("Disease no indicator: " + length(disease_no_indicator));
-
-    healthy_indicator = find(xy(healthy, 1) == 1);
-    %disp("No disease, indicator: " + length(healthy_indicator));
-
-    healthy_no_indicator = find(xy(healthy, 1) == 0);
-    %disp("No disease, no indicator: " + length(healthy_no_indicator));
+    % Probability that they are DISEASED given this value of indicator
+    disease_dist = fitdist(xy(has_disease, 2), 'Normal');
     
-    % Continuous value being negative corresponds to being healthy
-    if x == 1
-        prob_disease = length(disease_and_indicator) / 100 * pdf(disease_normal, x);
-        prob_healthy = length(healthy_indicator) / 100 * pdf(healthy_normal, x);
-        if(prob_disease > prob_healthy)
-            disease = 1;
-        else
-            disease = 0;
-        end
+    prob_disease = pdf(disease_dist, x) * length(has_disease) / 100;
+    prob_healthy = pdf(healthy_dist, x) * length(healthy) / 100;
+    
+    if(prob_disease > prob_healthy)
+        disease = 1;
     else
-        prob_disease = length(disease_no_indicator) / 100 * pdf(disease_normal, x);
-        prob_healthy = length(healthy_no_indicator) / 100 * pdf(healthy_normal, x);
-        if(prob_disease > prob_healthy)
-            disease = 1;
-        else
-            disease = 0;
-        end
+        disease = 0;
     end
 end
 
